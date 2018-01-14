@@ -26,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +36,6 @@ import com.ibm.ecm.configuration.Config;
 import com.ibm.ecm.configuration.ConfigInterface;
 import com.ibm.ecm.configuration.DesktopConfig;
 import com.ibm.ecm.configuration.ThemeConfig;
-import com.ibm.ecm.extension.PluginFeature;
 import com.ibm.ecm.extension.PluginResponseFilter;
 import com.ibm.ecm.extension.PluginServiceCallbacks;
 import com.ibm.ecm.serviceability.Logger;
@@ -149,7 +147,7 @@ public class NavLayoutRefreshPluginResponseFilter extends PluginResponseFilter {
 			
 			// Get the desktop's theme configuration
 			ConfigInterface configInterface = callbacks.getConfigInterface();
-			DesktopConfig desktopConfig = configInterface.getDesktopConfig(appName, desktop);
+			DesktopConfig desktopConfig = configInterface.getDesktopConfig(request);
 			ThemeConfig themeConfig = null;
 			String themeId = desktopConfig.getTheme();
 			if (themeId != null && !themeId.isEmpty()) {
@@ -281,23 +279,24 @@ public class NavLayoutRefreshPluginResponseFilter extends PluginResponseFilter {
 			}
 			
 			// Apply the same color used for system feature icons on plug-in feature icons that are enabled on the desktop
-			String features[] = desktopConfig.getFeatures();
-			if (features != null) {
-				if (navigationIconColor == null)
-					navigationIconColor = "#FFFFFF";
-				if (navigationSelectedIconColor == null)
-					navigationSelectedIconColor = "#4178BE";
-				
-				List<PluginFeature> pluginFeatures = callbacks.getDesktopPluginFeatures();
-				for (PluginFeature pluginFeature : pluginFeatures) {
-					if (pluginFeature != null && pluginFeature.getSvgFilePath() != null) {
-						String svgContent = readSvgFile(pluginFeature.getClass(), pluginFeature.getSvgFilePath());
-						svgContent = svgContent.replaceAll(".iconBaseColor\\{fill:.*;\\}", ".iconBaseColor{fill:" + navigationSelectedIconColor + ";}");
-						svgContent = svgContent.replaceAll(".iconSelectedColor\\{fill:.*;\\}", ".iconSelectedColor{fill:" + navigationIconColor + ";}");
-						cssStr.append(themeSelector).append(".navLayoutRefreshTheme .").append(pluginFeature.getIconUrl()).append(" {background-image: url('data:image/svg+xml;base64,").append(DatatypeConverter.printBase64Binary(svgContent.getBytes("UTF-8"))).append("');}");
-					}
-				}
-			}
+			// String features[] = desktopConfig.getFeatures();
+			// if (features != null) {
+			// if (navigationIconColor == null)
+			// navigationIconColor = "#FFFFFF";
+			// if (navigationSelectedIconColor == null)
+			// navigationSelectedIconColor = "#4178BE";
+			//
+			// List<PluginFeature> pluginFeatures = callbacks.fea;
+			// for (PluginFeature pluginFeature : pluginFeatures) {
+			// if (pluginFeature != null && pluginFeature.getSvgFilePath() != null) {
+			// String svgContent = readSvgFile(pluginFeature.getClass(), pluginFeature.getSvgFilePath());
+			// svgContent = svgContent.replaceAll(".iconBaseColor\\{fill:.*;\\}", ".iconBaseColor{fill:" + navigationSelectedIconColor + ";}");
+			// svgContent = svgContent.replaceAll(".iconSelectedColor\\{fill:.*;\\}", ".iconSelectedColor{fill:" + navigationIconColor + ";}");
+			// cssStr.append(themeSelector).append(".navLayoutRefreshTheme .").append(pluginFeature.getIconUrl()).append(" {background-image:
+			// url('data:image/svg+xml;base64,").append(DatatypeConverter.printBase64Binary(svgContent.getBytes("UTF-8"))).append("');}");
+			// }
+			// }
+			// }
 			
 			themeJson.put(ThemeConfig.CSS_STRING, cssStr.toString());
 		}
